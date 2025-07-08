@@ -165,6 +165,27 @@ AFTER INSERT OR UPDATE ON stock
 FOR EACH ROW
 EXECUTE FUNCTION notify_low_stock();
 ```
+### Insert some data for trigger `trg_low_stock` on
+``` sql
+INSERT INTO stock (warehouse_id, prod_id, quantity) VALUES
+(3, 4, 33);
+```
+- Quantity `33` > 6
+- No notice will be shown.
+- Insert completes silently.
+
+```sql
+INSERT INTO stock (warehouse_id, prod_id, quantity) VALUES
+(3, 4, 4); -- display Notice for lower than reorder_level
+```
+- Quantity 4 < 10
+-  Your trigger fires and shows:
+```sql
+NOTICE:  Low stock alert: Product ID 4 in Warehouse ID 3 has only 4 iteam left.
+INSERT 0 1
+
+Query returned successfully in 101 msec.
+```
 > Note: Make sure the `notify_low_stock()` function is already created and correctly handles the condition for low stock.
 
 ### 5. Stored Procedure to Transfer Stock Between Warehouses
@@ -244,5 +265,63 @@ $$;
 
 ```
 - This closes the procedure definition.
+
+### Task 1: Transfer Mouse (prod_id = 3)
+```sql
+-- Task1: Transfer Mouse (product_id = 3), quantity = 2
+-- From: East Hub (warehouse_id = 2)
+-- To: Main Warehouse (warehouse_id = 1)
+
+CALL transfer_stock(2, 1, 3, 2);
+```
+> Step-by-step:
+1. Lookup stock in East Hub (warehouse 2):
+	```sql
+	SELECT quantity FROM stock 
+	WHERE warehouse_id = 2 AND prod_id = 3;
+	Suppose result = 4
+	```
+2. 4 ≥ 2 → enough stock to transfer
+3. Deduct 2 units from East Hub:
+	```sql
+	UPDATE stock
+	SET quantity = quantity - 2
+	WHERE warehouse_id = 2 AND prod_id = 3;
+	```
+4. Add 2 units to Main Warehouse (insert or update):
+	```sql
+	INSERT INTO stock (warehouse_id, prod_id, quantity)
+	VALUES (1, 3, 2)
+	ON CONFLICT (warehouse_id, prod_id)
+	DO UPDATE SET quantity = stock.quantity + EXCLUDED.quantity;
+	```
+>  Result: Mouse moved from East Hub → Main Warehouse
+
+### Task 2: Insert + Update + Transfer Laptop (prod_id = 1)
+```sql
+-- Insert Laptop (product_id = 1), quantity = 3 to East Hub (warehouse_id = 2)
+INSERT INTO stock (warehouse_id, prod_id, quantity)
+VALUES (2, 1, 3);
+```
+- Adds a new stock record:
+  -- East Hub now has 3 laptops
+```sql
+-- Update that record to quantity = 20
+UPDATE stock
+SET quantity = 20
+WHERE warehouse_id = 2 AND prod_id = 1;
+```
+- Now East Hub has 20 laptops
+```sql
+-- Transfer 2 laptops from East Hub to Main Warehouse
+CALL transfer_stock(2, 1, 1, 2);
+```
+>  Step-by-step:
+1. Check if warehouse 2 has at least 2 of product 1 (Laptop)
+  -  Yes (20 ≥ 2)
+2. Deduct 2 from East Hub (now 18)
+3. Add 2 to Main Warehouse:
+  - If no existing row, insert
+  - If exists, update
 
 
