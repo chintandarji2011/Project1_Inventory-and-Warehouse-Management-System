@@ -289,7 +289,7 @@ CALL transfer_stock(2, 1, 3, 2);
 	```sql
 	SELECT quantity FROM stock 
 	WHERE warehouse_id = 2 AND prod_id = 3;
-	Suppose result = 4
+	-- Suppose result = 4
 	```
 2. 4 ≥ 2 → enough stock to transfer
 3. Deduct 2 units from East Hub:
