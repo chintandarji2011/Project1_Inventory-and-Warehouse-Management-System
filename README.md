@@ -105,7 +105,7 @@ JOIN warehouses w ON s.warehouse_id = w.warehouse_id
 JOIN products p ON s.prod_id = p.prod_id
 ORDER BY s.warehouse_id;
 ```
-> Add soecific column `reorder_level` to display:
+> Add specific column `reorder_level` to display:
   - `p.reorder_level` → minimum required quantity for that product.
 > Filters only those rows `where`:
   - The current stock (`s.quantity`) is less than the product’s reorder level.
