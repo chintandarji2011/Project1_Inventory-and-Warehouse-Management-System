@@ -90,12 +90,23 @@ INSERT INTO warehouses (name, location) VALUES
 
 - `s.quantity` → current stock level in that warehouse.
 
-- `p.reorder_level` → minimum required quantity for that product.
 > Uses the `stock` table as the main source, with alias `s`.
 > Inner join between `stock` and `warehouses`:
   - Links each stock record to the warehouse it belongs to.
 >  Inner join between `stock` and `products`:
   - Links each stock entry to its associated product.
+```sql
+---  View current stock levels:
+SELECT w.name AS warehouse_name,
+	   p.name AS product_name,
+	   s.quantity
+FROM stock s
+JOIN warehouses w ON s.warehouse_id = w.warehouse_id
+JOIN products p ON s.prod_id = p.prod_id
+ORDER BY s.warehouse_id;
+```
+> Add soecific column `reorder_level` to display:
+  - `p.reorder_level` → minimum required quantity for that product.
 > Filters only those rows `where`:
   - The current stock (`s.quantity`) is less than the product’s reorder level.
 
