@@ -19,8 +19,7 @@ Design a SQL backend to manage inventory across multiple warehouses, track produ
 ## Schema Design
 
 ### 1. `suppliers`
-Stores details of product suppliers.
-
+> Stores details of product suppliers.
 ```sql
 -- Table: Suppliers
 CREATE TABLE suppliers
