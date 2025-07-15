@@ -334,4 +334,19 @@ CALL transfer_stock(2, 1, 1, 2);
   - If no existing row, insert
   - If exists, update
 
+### 6. Documentation Summary
+
+| Table      | Description                       |
+| ---------- | --------------------------------- |
+| suppliers  | Supplier details for products     |
+| warehouses | Storage location details          |
+| products   | List of items with reorder levels |
+| stock      | Tracks quantity in each warehouse |
+
+| Component        | Description                                   |
+| ---------------- | --------------------------------------------- |
+| Views            | Stock levels, Reorder alerts                  |
+| Trigger          | Notifies when stock drops below reorder level |
+| Stored Procedure | Transfers stock between warehouses            |
+
 
